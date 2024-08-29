@@ -28,16 +28,32 @@ public class TarefasController {
 
     @PostMapping
     public Tarefa criarTarefa(@RequestBody Tarefa tarefa) {
+        tarefa.setStatus("Pendente");
         return tarefaRepository.save(tarefa);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Tarefa> editarFilme(@PathVariable Long id, @RequestBody Tarefa tarefaDetalhes){
+    public ResponseEntity<Tarefa> marcarComoConcluida(@PathVariable Long id, @RequestBody Tarefa tarefaStatus) {
         Optional<Tarefa> tarefaOptional = tarefaRepository.findById(id);
         if (tarefaOptional.isPresent()) {
             Tarefa tarefa = tarefaOptional.get();
-            tarefa.setDescricao(tarefaDetalhes.getDescricao());
-            tarefa.setStatus(tarefaDetalhes.getStatus());
+            tarefa.setStatus("concluída");
+            Tarefa tarefaAtualizada = tarefaRepository.save(tarefa);
+            return ResponseEntity.ok(tarefaAtualizada);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<Tarefa> editarTarefa(@PathVariable Long id, @RequestBody Tarefa tarefaDetalhes) {
+        Optional<Tarefa> tarefaOptional = tarefaRepository.findById(id);
+        if (tarefaOptional.isPresent()) {
+            Tarefa tarefa = tarefaOptional.get();
+
+            if (tarefaDetalhes.getDescricao() != null) {
+                tarefa.setDescricao(tarefaDetalhes.getDescricao());
+            }
             Tarefa tarefaAtualizada = tarefaRepository.save(tarefa);
             return ResponseEntity.ok(tarefaAtualizada);
         } else {
